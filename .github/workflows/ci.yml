@@ -17,4 +17,6 @@ jobs:
       - run: node tests/panel_test.js
       - run: node tests/jsx_mock_test.js
       - name: Installer compiles
-        run: makensis -V2 -DVERSION=0.0.0 installer/balakar.nsi
+        run: |
+          mkdir -p dist
+          makensis -V2 -DVERSION=0.0.0 installer/balakar.nsi
