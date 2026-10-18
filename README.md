@@ -25,9 +25,9 @@ Windows may show a SmartScreen warning because the installer is unsigned: More i
 
 ## Publish your own copy
 ```
-python scripts/set_repo.py YOURNAME/balakar.io     # rewrites links
+python scripts/set_repo.py lassi-420/balakar.io     # rewrites links
 git init && git add . && git commit -m "Balakar 1.0.0"
-git remote add origin https://github.com/YOURNAME/balakar.io.git && git push -u origin main
+git remote add origin https://github.com/lassi-420/balakar.io.git && git push -u origin main
 ```
 1. Repo **Settings > Pages > Source: GitHub Actions** (site goes live at `https://YOURNAME.github.io/balakar.io/`).
 2. Release: `git tag v1.0.0 && git push --tags`. The *Release installer* workflow builds `Balakar-Setup.exe` on a Windows runner, **silently installs it on a clean machine and checks the engine answers**, and only then attaches it to the release.
