@@ -62,13 +62,21 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--mut);fon
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media(max-width:820px){.hero,.split{grid-template-columns:1fr;gap:40px}dl.feat{grid-template-columns:1fr}nav a:not(.keep){display:none}}
 @media(prefers-reduced-motion:reduce){.cap span{transition:none}}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.tile{margin:0}
+.tile div{aspect-ratio:4/5;border-radius:16px;border:1px solid var(--line);background:linear-gradient(160deg,#16305e,#0b1a36);display:grid;place-items:end center;padding:0 10px 22%;text-align:center;font-weight:800;font-size:20px;line-height:1.2}
+.tile figcaption{margin-top:8px;font-size:14px;color:var(--mut)}.tile b{color:var(--saf)}
+.t1{text-transform:uppercase;text-shadow:2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000}.t2{font-size:34px!important;align-content:center;padding:0!important;text-transform:uppercase;text-shadow:3px 3px 0 #000}
+.t3{font-weight:500!important;font-size:16px!important}.t4 b{color:#3ddc84}.t5 span{background:#fff;color:#111;border-radius:20px;padding:6px 14px}
+.t6 span{background:#000b;border-radius:8px;padding:6px 12px;font-weight:600}.t7{color:#e6fbff;text-shadow:0 0 10px #00b7ff}.t7 b{color:#ff2ec4;text-shadow:0 0 10px #ff2ec4}.t8{font-family:var(--mono);font-weight:500!important}.t8::after{content:"|";color:var(--saf)}
+.free{display:grid;grid-template-columns:1fr 1fr;gap:10px 40px;list-style:none;padding:0;margin:0;max-width:760px}.free li::before{content:"\2713";color:var(--saf);margin-right:10px;font-weight:800}
+.why p{color:var(--mut);max-width:62ch}@media(max-width:820px){.tiles{grid-template-columns:repeat(2,1fr)}.free{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
     <a class="brand" href="#"><i></i>Balakar</a>
-    <nav><a href="#features">Features</a><a href="#install">Install</a><a href="#faq">FAQ</a><a class="keep" data-gh href="#">GitHub</a></nav>
+    <nav><a href="app.html">Try online</a><a href="#styles">Styles</a><a href="#features">Features</a><a href="#free">Free</a><a href="#install">Install</a><a href="#faq">FAQ</a><a class="keep" data-gh href="#">GitHub</a></nav>
   </header>
 
   <main>
@@ -78,7 +86,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--mut);fon
       <p class="lede">A free After Effects panel that turns speech into styled captions in Hindi, Urdu, Tamil and 17 more languages. It runs on your own PC, so there is no account to make and nothing to pay for.</p>
       <div class="cta">
         <a class="btn main" id="dl" href="#">Download for Windows</a>
-        <a class="btn" data-gh href="#">View source on GitHub</a>
+        <a class="btn" href="app.html">Try it in your browser</a><a class="btn" data-gh href="#">View source on GitHub</a>
       </div>
       <p class="fine" id="dlinfo">Windows 10 or 11 &middot; free &middot; MIT license &middot; works offline after setup</p>
     </div>
@@ -103,6 +111,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--mut);fon
     </dl>
   </section>
 
+  <section id="styles"><h2>Caption styles you can change.</h2><div class="tiles"><figure class="tile"><div class="t1" aria-hidden="true">FREE <b>CAPTIONS</b> FOR ALL</div><figcaption>Bold Highlight</figcaption></figure><figure class="tile"><div class="t2" aria-hidden="true"><b>FREE</b></div><figcaption>Word Pop</figcaption></figure><figure class="tile"><div class="t3" aria-hidden="true">Free captions for everyone</div><figcaption>Clean Minimal</figcaption></figure><figure class="tile"><div class="t4" aria-hidden="true">Free <b>captions</b> for everyone</div><figcaption>Karaoke Fill</figcaption></figure><figure class="tile"><div class="t5" aria-hidden="true"><span>Free captions</span></div><figcaption>Bubble Box</figcaption></figure><figure class="tile"><div class="t6" aria-hidden="true"><span>Free captions for everyone</span></div><figcaption>Dark Box</figcaption></figure><figure class="tile"><div class="t7" aria-hidden="true">Free <b>captions</b> for all</div><figcaption>Neon Glow</figcaption></figure><figure class="tile"><div class="t8" aria-hidden="true">Free captions for ev</div><figcaption>Typewriter</figcaption></figure></div><p class="fine">12 built-in styles. Every colour, font, size and position can be changed, and you can add your own as a JSON file.</p></section>
   <section id="install">
     <h2>Install in three steps.</h2>
     <ol class="steps">
@@ -123,6 +132,8 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--mut);fon
     </div>
   </section>
 
+  <section id="free"><h2>Everything is free. No plans, no credits.</h2><ul class="free"><li>All 20 languages</li><li>All caption styles</li><li>No watermark</li><li>No video length limit</li><li>Custom fonts</li><li>Unlimited batch</li><li>SRT and VTT export</li><li>TXT, Markdown and Word transcripts</li><li>Audio cleanup</li><li>Translation</li><li>Alpha, green and blue screen renders</li><li>Audio-only files such as MP3</li></ul><p class="fine">Because it runs on your own computer, there is no server bill to pass on to you.</p></section>
+  <section id="why" class="why"><h2>Why we built it.</h2><p>Most caption tools are made for English first. Creators in South Asia and the Middle East spend hours fixing Hindi, Urdu or Tamil subtitles by hand. Balakar is open source and local, so anyone can use it, improve it and teach it new languages.</p></section>
   <section id="faq">
     <h2>Questions people ask.</h2>
     <details><summary>Windows says &ldquo;Windows protected your PC&rdquo;.</summary><p>The installer is not code-signed yet, so SmartScreen warns about any new unsigned file. Choose More info, then Run anyway. You can check the file against the SHA-256 listed on the release page, or build it yourself from the source.</p></details>
