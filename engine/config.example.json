@@ -1,0 +1,13 @@
+{
+  "port": 8765,
+  "whisper_model": "openai/whisper-large-v3-turbo",
+  "model_overrides": {
+    "ur": "C:/models/whisper-urdu-finetuned",
+    "or": "C:/models/whisper-odia-finetuned"
+  },
+  "translation_model": "facebook/nllb-200-distilled-600M",
+  "ffmpeg": "ffmpeg",
+  "device": "auto",
+  "batch_size": 8,
+  "offline": true
+}

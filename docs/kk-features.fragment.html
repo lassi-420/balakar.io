@@ -1,0 +1,64 @@
+<!-- Drop this fragment into your panel's <body>. Load css/kk-features.css and the scripts at the bottom. -->
+<div id="kk-root" class="kk">
+  <div class="kk-status"><span id="kk-dot"></span><span id="kk-status-text">Connecting to local engine...</span></div>
+
+  <details open class="kk-card"><summary>1 · Transcribe</summary>
+    <label>Language <select id="kk-lang"></select></label>
+    <label>Task <select id="kk-task"><option value="transcribe">Transcribe (same language)</option><option value="translate">Translate to English (Whisper)</option></select></label>
+    <label class="kk-row"><input type="checkbox" id="kk-latin"> Romanise output (Hinglish / Latin script)</label>
+    <label>Also translate to <select id="kk-translate-to"><option value="">- none -</option></select></label>
+    <label class="kk-row"><input type="checkbox" id="kk-enhance-first"> Enhance audio before transcribing</label>
+    <div class="kk-grid3">
+      <label>Max chars <input type="number" id="kk-maxchars" value="32" min="10" max="80"></label>
+      <label>Max words <input type="number" id="kk-maxwords" value="6" min="1" max="15"></label>
+      <label>Max sec <input type="number" id="kk-maxdur" value="4" min="1" max="12" step="0.5"></label>
+    </div>
+    <div class="kk-btns"><button id="kk-add-sel">+ Selected layer</button><button id="kk-add-files">+ Files (batch)</button><button id="kk-clear">Clear</button></div>
+    <ul id="kk-queue" class="kk-list"></ul>
+    <button id="kk-run" class="kk-primary">Transcribe queue</button>
+  </details>
+
+  <details class="kk-card"><summary>2 · Edit transcript</summary>
+    <div class="kk-btns"><select id="kk-item"></select><button id="kk-regroup">Regroup</button></div>
+    <div class="kk-grid2"><input id="kk-find" placeholder="Find"><input id="kk-repl" placeholder="Replace"></div>
+    <div class="kk-btns"><button id="kk-replace-all">Replace all</button><input id="kk-shift" type="number" step="0.05" value="0" title="seconds"><button id="kk-shift-btn">Shift (s)</button></div>
+    <div id="kk-editor" class="kk-editor"></div>
+  </details>
+
+  <details class="kk-card"><summary>3 · Style &amp; build</summary>
+    <label>Template <select id="kk-template"></select></label>
+    <div class="kk-grid2">
+      <label>Font (PostScript) <input id="kk-font" placeholder="auto by language"></label>
+      <label>Size <input type="number" id="kk-size" placeholder="template"></label>
+      <label>Fill <input type="color" id="kk-fill" value="#ffffff"></label>
+      <label>Highlight <input type="color" id="kk-hl" value="#ffd60a"></label>
+      <label>Stroke <input type="color" id="kk-stroke" value="#000000"></label>
+      <label>Stroke px <input type="number" id="kk-strokew" placeholder="template"></label>
+      <label>Position Y % <input type="number" id="kk-posy" min="5" max="95" placeholder="template"></label>
+      <label>Animation <select id="kk-anim"><option value="">template</option><option>none</option><option>fade</option><option>pop</option><option>slideUp</option><option>typewriter</option></select></label>
+    </div>
+    <label class="kk-row"><input type="checkbox" id="kk-apply-all" checked> Apply to all caption layers</label>
+    <div class="kk-btns"><button id="kk-build" class="kk-primary">Build captions</button><button id="kk-restyle">Restyle</button><button id="kk-pull">Read from AE</button><button id="kk-remove">Remove</button></div>
+    <div class="kk-btns"><button id="kk-font-install">Install custom font...</button><button id="kk-tpl-import">Import template JSON</button><button id="kk-tpl-export">Export templates</button></div>
+  </details>
+
+  <details class="kk-card"><summary>4 · Export / import</summary>
+    <div class="kk-btns"><button data-fmt="srt">SRT</button><button data-fmt="vtt">VTT</button><button data-fmt="txt">TXT</button><button data-fmt="md">MD</button><button data-fmt="docx">DOCX</button></div>
+    <div class="kk-btns"><button id="kk-import-sub">Import SRT / VTT</button><button id="kk-use-translated">Use translated version</button></div>
+  </details>
+
+  <details class="kk-card"><summary>5 · Render (alpha / chroma)</summary>
+    <label>Mode <select id="kk-render-mode"><option value="alpha">Alpha channel</option><option value="green">Green screen</option><option value="blue">Blue screen</option><option value="plain">Plain</option></select></label>
+    <div class="kk-grid2"><label>FPS override <input type="number" id="kk-fps" placeholder="comp fps"></label>
+    <label>Output template <input id="kk-om" placeholder="auto"></label></div>
+    <div class="kk-btns"><button id="kk-render">Add to render queue</button><button id="kk-chroma-off">Remove chroma BG</button></div>
+  </details>
+
+  <details class="kk-card"><summary>6 · Audio enhancement</summary>
+    <div class="kk-grid2"><label>Preset <select id="kk-enh-preset"><option>light</option><option selected>standard</option><option>heavy</option></select></label>
+    <label>Engine <select id="kk-enh-engine"><option value="ffmpeg">ffmpeg (built in)</option><option value="deepfilternet">DeepFilterNet</option><option value="noisereduce">noisereduce</option></select></label></div>
+    <label class="kk-row"><input type="checkbox" id="kk-mute-orig" checked> Mute original audio after import</label>
+    <button id="kk-enhance">Enhance selected layer's audio</button>
+  </details>
+  <div id="kk-log" class="kk-log"></div>
+</div>

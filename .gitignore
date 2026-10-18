@@ -1,0 +1,7 @@
+dist/
+models/
+engine/config.json
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/

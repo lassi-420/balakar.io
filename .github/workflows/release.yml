@@ -1,0 +1,56 @@
+name: Release installer
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+permissions: { contents: write }
+jobs:
+  windows-installer:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          choco install nsis -y --no-progress
+          $ver = if ("${{ github.ref_name }}" -match '^v(\d+\.\d+\.\d+)') { $Matches[1] } else { "0.0.0" }
+          New-Item -ItemType Directory -Force dist | Out-Null
+          & "${env:ProgramFiles(x86)}\NSIS\makensis.exe" -V2 "-DVERSION=$ver" installer\balakar.nsi
+          if (-not (Test-Path dist\Balakar-Setup.exe)) { throw "installer was not produced" }
+
+      - name: Test - silent install on a clean Windows runner
+        shell: pwsh
+        run: |
+          $p = Start-Process dist\Balakar-Setup.exe -ArgumentList "/S","/MODEL=base","/GPU=0","/NLLB=0" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "installer exit code $($p.ExitCode)" }
+          $h = Invoke-RestMethod http://127.0.0.1:8765/health
+          if (-not $h.ok -or -not $h.ffmpeg) { throw "engine health check failed" }
+          if (-not (Test-Path "$env:APPDATA\Adobe\CEP\extensions\com.balakar.captions\CSXS\manifest.xml")) { throw "panel not installed" }
+          Write-Host "Installed OK: model=$($h.model) languages=$($h.languages.Count)"
+
+      - name: Upload setup log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: setup-log, path: "${{ env.LOCALAPPDATA }}/Programs/Balakar/setup.log", if-no-files-found: ignore }
+
+      - name: Checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash dist\Balakar-Setup.exe -Algorithm SHA256).Hash.ToLower()
+          "$hash  Balakar-Setup.exe" | Out-File -Encoding ascii dist\Balakar-Setup.exe.sha256
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/Balakar-Setup.exe
+            dist/Balakar-Setup.exe.sha256
+          generate_release_notes: true
+
+      - name: Keep build as artifact (manual runs)
+        if: "!startsWith(github.ref, 'refs/tags/v')"
+        uses: actions/upload-artifact@v4
+        with: { name: Balakar-Setup, path: dist/ }

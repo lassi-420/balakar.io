@@ -1,0 +1,12 @@
+# core (local Whisper + translation)
+torch>=2.1
+transformers>=4.40
+accelerate>=0.30
+numpy
+# optional
+indic-transliteration   # Hinglish / Latin-script output
+unidecode               # fallback romanisation for other scripts
+fonttools               # detect PostScript name when installing fonts
+noisereduce             # extra enhancement engine
+deepfilternet           # extra enhancement engine (needs its own torch build)
+pytest                  # tests
