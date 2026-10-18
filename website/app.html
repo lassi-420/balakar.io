@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Balakar - captions in your browser</title>
+<style>:root{--ink:#070d1a;--p:#0e1830;--l:#1c2c4b;--t:#e9eefb;--m:#93a5c6;--s:#ffb020}*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--t);font:16px/1.5 system-ui,"Segoe UI","Nirmala UI","Noto Sans",sans-serif}a{color:#4c8dff}
+main{max-width:1000px;margin:0 auto;padding:20px;display:grid;grid-template-columns:1fr 340px;gap:24px}h1{font-size:28px;margin:0 0 4px}
+.box{background:var(--p);border:1px solid var(--l);border-radius:12px;padding:14px;margin-bottom:14px}label{display:block;color:var(--m);font-size:14px;margin:8px 0}
+select,input,button{font:inherit;color:var(--t);background:#0a1426;border:1px solid var(--l);border-radius:8px;padding:8px;width:100%}
+button{cursor:pointer;width:auto;margin:4px 4px 0 0}button.go{background:var(--s);color:#1a1200;border-color:var(--s);font-weight:700}
+canvas{width:100%;border-radius:14px;border:1px solid var(--l);background:#000}#segs{max-height:420px;overflow:auto}#segs input{margin:3px 0}
+#st{color:var(--s);min-height:24px}@media(max-width:800px){main{grid-template-columns:1fr}}</style></head><body><main>
+<div><h1>Balakar in your browser</h1><p style="color:var(--m);margin:0 0 14px">Free. Your video never leaves this device. <a href="./">Back</a></p>
+<div class="box"><label>Video or audio file<input type="file" id="f" accept="video/*,audio/*"></label>
+<label>Language<select id="lang"></select></label>
+<label>Task<select id="task"><option value="transcribe">Transcribe</option><option value="translate">Translate to English</option></select></label>
+<label>Model (downloaded once, then cached)<select id="model"><option value="Xenova/whisper-tiny">Tiny - 40 MB, fastest</option><option value="Xenova/whisper-base" selected>Base - 75 MB</option><option value="Xenova/whisper-small">Small - 250 MB, most accurate</option></select></label>
+<button class="go" id="go">Generate captions</button><div id="st"></div></div>
+<div class="box"><b>Captions</b> (edit text, then export)<div id="segs"></div>
+<button data-x="srt">SRT</button><button data-x="vtt">VTT</button><button data-x="txt">TXT</button></div></div>
+<div><div class="box"><canvas id="cv" width="360" height="640"></canvas>
+<label>Style<select id="sty"><option value="hl">Bold highlight</option><option value="box">Boxed</option><option value="clean">Clean</option></select></label>
+<label>Background<select id="bg"><option value="video">Video</option><option value="#00b140">Green screen</option><option value="#0047bb">Blue screen</option><option value="#000000">Black</option></select></label>
+<button id="play">Play / pause</button><button class="go" id="rec">Download captioned video</button></div></div></main>
+<video id="v" playsinline style="display:none"></video>
+<script type="module">
+import {pipeline} from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2";
+const $=i=>document.getElementById(i),v=$("v"),cv=$("cv"),x=cv.getContext("2d");let segs=[];
+[["auto","Auto-detect"],["hi","Hindi"],["en","English"],["ne","Nepali"],["ur","Urdu"],["ta","Tamil"],["ml","Malayalam"],["gu","Gujarati"],["bn","Bengali"],["pa","Punjabi"],["te","Telugu"],["sd","Sindhi"],["mr","Marathi"],["kn","Kannada"],["ps","Pashto"],["ms","Malay"],["as","Assamese"],["fa","Persian"],["ar","Arabic"]].forEach(([c,n])=>$("lang").add(new Option(n,c)));
+const st=m=>$("st").textContent=m,spread=(t,s,e)=>{const a=t.split(/\s+/).filter(Boolean),n=a.reduce((p,w)=>p+w.length,0);let c=s;return a.map(w=>{const d=(e-s)*w.length/n;const o={t:w,s:c,e:c+d};c+=d;return o})};
+function group(ws){const o=[];let c=[];for(const w of ws){if(c.length&&(c.length>=6||w.s-c.at(-1).e>.6||c.map(k=>k.t).join(" ").length+w.t.length>32)){o.push(c);c=[]}c.push(w);if(/[.!?؟۔।]$/.test(w.t)&&c.length>1){o.push(c);c=[]}}if(c.length)o.push(c);return o.map(w=>({s:w[0].s,e:w.at(-1).e,w,text:w.map(k=>k.t).join(" ")}))}
+function list(){$("segs").innerHTML="";segs.forEach(g=>{const i=document.createElement("input");i.value=g.text;i.dir="auto";i.onchange=()=>{g.text=i.value;g.w=spread(g.text,g.s,g.e)};$("segs").append(i)})}
+$("f").onchange=e=>{const f=e.target.files[0];if(f){v.src=URL.createObjectURL(f);v.onloadedmetadata=()=>{const k=Math.min(1,720/Math.max(v.videoWidth,1),1280/Math.max(v.videoHeight,1));if(v.videoWidth){cv.width=Math.round(v.videoWidth*k);cv.height=Math.round(v.videoHeight*k)}}}};
+$("go").onclick=async()=>{const f=$("f").files[0];if(!f)return st("Choose a file first.");try{$("go").disabled=true;
+const asr=await pipeline("automatic-speech-recognition",$("model").value,{progress_callback:p=>{if(p.status==="progress")st("Downloading model "+Math.round(p.progress)+"%")}});
+st("Reading audio...");const a=(await new AudioContext({sampleRate:16000}).decodeAudioData(await f.arrayBuffer())).getChannelData(0);
+const o={return_timestamps:"word",chunk_length_s:30,stride_length_s:5,task:$("task").value};if($("lang").value!=="auto")o.language=$("lang").value;
+st("Transcribing... (can take a few minutes)");const r=await asr(a,o);
+segs=group(r.chunks.map(c=>({t:c.text.trim(),s:c.timestamp[0],e:c.timestamp[1]??c.timestamp[0]+.3})).filter(w=>w.t));list();st(segs.length+" captions ready.")}catch(e){st("Error: "+e.message)}$("go").disabled=false};
+function draw(){const W=cv.width,H=cv.height,b=$("bg").value;x.fillStyle=b==="video"?"#000":b;x.fillRect(0,0,W,H);if(b==="video"&&v.videoWidth)x.drawImage(v,0,0,W,H);
+const t=v.currentTime,g=segs.find(s=>t>=s.s&&t<=s.e+.15);if(g){const rtl=/[\u0590-\u08FF]/.test(g.text),sty=$("sty").value;let fs=W*.085;const f=()=>x.font=`800 ${fs}px system-ui,"Noto Sans","Nirmala UI",sans-serif`;f();
+const sp=fs*.3,ws=rtl?[...g.w].reverse():g.w,wd=s=>ws.reduce((p,k)=>p+x.measureText(k.t).width+sp,0)-sp;while(wd()>W*.9&&fs>10){fs-=2;f()}
+const tot=wd(),y=H*(sty==="clean"?.85:.72),act=g.w.findIndex(k=>t>=k.s&&t<k.e);let px=(W-tot)/2;x.textBaseline="middle";
+if(sty==="box"){x.fillStyle="#000b";x.beginPath();x.roundRect(px-fs*.5,y-fs*.8,tot+fs,fs*1.6,fs*.4);x.fill()}
+ws.forEach(k=>{const m=x.measureText(k.t).width,on=g.w.indexOf(k)===act&&sty!=="clean";if(sty!=="box"){x.lineWidth=fs*.16;x.lineJoin="round";x.strokeStyle="#000";x.strokeText(k.t,px,y)}
+x.fillStyle=on?"#ffb020":"#fff";x.fillText(k.t,px,y);px+=m+sp})}requestAnimationFrame(draw)}draw();
+$("play").onclick=()=>v.paused?v.play():v.pause();
+const ts=(t,s)=>{const m=Math.round(t*1000),p=(n,l=2)=>String(n).padStart(l,"0");return`${p(m/36e5|0)}:${p(m/6e4%60|0)}:${p(m/1e3%60|0)}${s}${p(m%1e3,3)}`};
+document.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{const k=b.dataset.x;let s=k==="txt"?segs.map(g=>g.text).join("\n"):(k==="vtt"?"WEBVTT\n\n":"")+segs.map((g,i)=>(k==="srt"?i+1+"\n":"")+ts(g.s,k==="srt"?",":".")+" --> "+ts(g.e,k==="srt"?",":".")+"\n"+g.text+"\n").join("\n");
+const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([s],{type:"text/plain;charset=utf-8"}));a.download="captions."+k;a.click()});
+$("rec").onclick=()=>{if(!v.src||!segs.length)return st("Generate captions first.");const s=cv.captureStream(30);try{v.captureStream().getAudioTracks().forEach(t=>s.addTrack(t))}catch(e){}
+const ch=[],r=new MediaRecorder(s,{mimeType:"video/webm"});r.ondataavailable=e=>ch.push(e.data);r.onstop=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(ch,{type:"video/webm"}));a.download="captioned.webm";a.click();st("Saved.")};
+v.currentTime=0;v.onended=()=>r.stop();r.start();v.play();st("Recording in real time - keep this tab open...")};
+</script></body></html>
