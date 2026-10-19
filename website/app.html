@@ -24,7 +24,7 @@ button{cursor:pointer;width:auto;margin:4px 4px 0 0}button.go{background:var(--s
 <button id="play">Play / pause</button><button class="go" id="rec">Download captioned video</button></div></div></main>
 <video id="v" playsinline style="position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none"></video>
 <script type="module">
-import {pipeline} from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2";
+import {pipeline,env} from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2";
 const $=i=>document.getElementById(i),v=$("v"),cv=$("cv"),x=cv.getContext("2d");let segs=[];
 /* Caption styles. Labels are generic on purpose - rename freely. f=font w=weight up=UPPERCASE sw=outline box=box colour hl=highlight cum=fill-up glow word=one word at a time an=animation y=position */
 const ST={"Viral Yellow":{f:"Impact",up:1,fill:"#fff",hl:"#ffe600",sw:.2,an:"pop",y:.64},
@@ -52,7 +52,9 @@ $("f").onchange=e=>{const f=e.target.files[0];if(!f)return;v.src=URL.createObjec
 v.onloadedmetadata=()=>{if(v.videoWidth){const k=Math.min(1,720/v.videoWidth,1280/v.videoHeight);cv.width=Math.round(v.videoWidth*k);cv.height=Math.round(v.videoHeight*k)}};
 v.onloadeddata=()=>{v.currentTime=.05;if(!v.videoWidth&&f.type.startsWith("video"))st("This browser can't show this video's picture (common with iPhone .mov / HEVC). Captions still work. For a preview, convert to H.264 .mp4 or open in Edge/Safari.")}};
 $("go").onclick=async()=>{const f=$("f").files[0];if(!f)return st("Choose a file first.");try{$("go").disabled=true;
-const asr=await pipeline("automatic-speech-recognition",$("model").value,{progress_callback:p=>{if(p.status==="progress")st("Downloading model "+Math.round(p.progress)+"%")}});
+const id=$("model").value,loc=await fetch("models/"+id+"/config.json",{method:"HEAD"}).then(r=>r.ok).catch(()=>false);
+env.allowLocalModels=loc;env.allowRemoteModels=!loc;env.localModelPath=new URL("models/",location.href).href;st(loc?"Loading model from this site...":"Downloading model (first time only)...");
+const asr=await pipeline("automatic-speech-recognition",id,{progress_callback:p=>{if(p.status==="progress")st("Downloading model "+Math.round(p.progress)+"%")}});
 st("Reading audio...");const a=(await new AudioContext({sampleRate:16000}).decodeAudioData(await f.arrayBuffer())).getChannelData(0);
 const o={return_timestamps:"word",chunk_length_s:30,stride_length_s:5,task:$("task").value};if($("lang").value!=="auto")o.language=$("lang").value;
 st("Transcribing... (can take a few minutes)");const r=await asr(a,o);
